@@ -1,0 +1,97 @@
+/*
+ * Process section — fixed radiant background: deep navy with a soft blue glow.
+ * The background is pinned to the viewport while the section scrolls, so the glow
+ * stays in view behind every stage.
+ */
+
+.process-radiant {
+  /* The radiant layers below replace the surface's flat background color. */
+  background-color: transparent;
+}
+
+.process-radiant__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.process-radiant__layer {
+  position: absolute;
+  inset: 0;
+}
+
+.process-radiant__dark {
+  background:
+    radial-gradient(ellipse 70% 55% at 78% 22%, rgb(31 91 216 / 0.42), transparent 62%),
+    radial-gradient(ellipse 55% 45% at 8% 88%, rgb(47 107 234 / 0.2), transparent 60%),
+    linear-gradient(180deg, #081230 0%, #0b1738 100%);
+}
+
+/* Slow-moving glow that gives the gradient its radiance. */
+.process-radiant__glow {
+  inset: -20%;
+  background: radial-gradient(circle at 50% 50%, rgb(120 165 255 / 0.22), transparent 55%);
+  mix-blend-mode: screen;
+}
+
+/* The drifting glow is desktop-only: on phones a full-screen blended layer moving every frame costs
+   more than the subtle effect is worth. It also stops while the section is out of view. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (pointer: fine) {
+  .process-radiant__glow {
+    animation: process-radiant-drift 18s ease-in-out infinite alternate;
+  }
+  .process-radiant[data-offscreen='true'] .process-radiant__glow {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes process-radiant-drift {
+  from {
+    transform: translate3d(12%, -10%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-14%, 12%, 0) scale(1.15);
+  }
+}
+
+/* ------------------------------------------------------------ stage viewer */
+
+/* Photos cross-fade gently: the incoming one fades up over the outgoing one. Opacity only, so the
+   photos are never resampled and stay sharp. */
+.process-viewer__photo {
+  opacity: 0;
+  transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.process-viewer__photo.is-active {
+  z-index: 1;
+  opacity: 1;
+}
+
+.process-viewer__caption {
+  animation: process-caption-in 700ms cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+@keyframes process-caption-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-14px, 0, 0);
+  }
+}
+
+/* --------------------------------------------------------------- filmstrip */
+
+.process-strip__thumb {
+  transition:
+    opacity 300ms ease,
+    box-shadow 300ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .process-viewer__photo {
+    transition: none;
+  }
+  .process-viewer__caption {
+    animation: none;
+  }
+}

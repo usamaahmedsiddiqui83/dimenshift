@@ -1,0 +1,623 @@
+@import 'tailwindcss';
+
+/*
+ * Responsive variants beyond width breakpoints.
+ * short: phones held sideways and other very short viewports.
+ * split: layouts that sit side by side — desktops, plus wide-but-short landscape screens where a
+ *        stacked sticky layout would leave no room for the content scrolling under it.
+ * `short` is declared last so its rules win over `split` ones on the screens both match.
+ */
+@custom-variant split {
+  @media (min-width: 64rem) {
+    @slot;
+  }
+  @media (min-width: 40rem) and (orientation: landscape) and (max-height: 540px) {
+    @slot;
+  }
+}
+@custom-variant short (@media (orientation: landscape) and (max-height: 540px));
+
+/* ==========================================================================
+   DESIGN TOKENS
+   Palette derived from the DIMENSHIFT mark: navy (the "D") for surfaces and
+   logo blue (the origin dot) for brand actions. Everything in
+   the UI and the 3D layer reads from these names, so a swap is one-file.
+   ========================================================================== */
+@theme {
+  /* Surfaces — DIMENSHIFT navy, never pure black */
+  --color-ink-950: #050b1c;
+  --color-ink-900: #081230;
+  --color-ink-850: #0b1738;
+  --color-ink-800: #0f1d44;
+  --color-ink-700: #15254f;
+  --color-ink-600: #1e305e;
+  --color-ink-500: #2a3e70;
+
+  /* Text / neutrals — cool white, tinted toward the navy */
+  --color-steel-50: #f3f6fb;
+  --color-steel-100: #e2e8f2;
+  --color-steel-200: #c6cfde;
+  --color-steel-300: #a7b2c6;
+  --color-steel-400: #8a97ad;
+  --color-steel-500: #6e7b94;
+
+  /* Brand action — DIMENSHIFT blue (CTAs, active state, accents) */
+  --color-brand-300: #9dbcff;
+  --color-brand-400: #6b98ff;
+  --color-brand-500: #1f5bd8;
+  --color-brand-600: #1848b0;
+
+  /* Technical annotation — light blueprint blue (dimensions, overlays, highlights only) */
+  --color-datum-200: #d6e5ff;
+  --color-datum-300: #b0cdff;
+  --color-datum-400: #82b2ff;
+  --color-datum-500: #4f8ef5;
+
+  --color-signal-ok: #7fd99a;
+  --color-signal-error: #ff8a7a;
+
+  /* Typography */
+  --font-display: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Technical labels use Satoshi too: uppercase, tracked, tabular figures. */
+  --font-mono: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Radii — tight, machined */
+  --radius-hair: 2px;
+  --radius-part: 4px;
+  --radius-panel: 6px;
+
+  /* Motion */
+  --ease-precise: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --ease-mech: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-snap: 160ms;
+  --duration-move: 320ms;
+  --duration-reveal: 700ms;
+
+  --breakpoint-3xl: 120rem;
+}
+
+:root {
+  --line-faint: rgb(198 214 245 / 0.07);
+  --line: rgb(198 214 245 / 0.12);
+  --line-strong: rgb(198 214 245 / 0.22);
+  --grid-minor: rgb(198 214 245 / 0.035);
+  --btn-primary-fg: #ffffff;
+  --btn-ghost-bg: rgb(8 18 48 / 0.4);
+  --btn-ghost-bg-hover: rgb(21 37 79 / 0.85);
+  --header-h: 64px;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --section-y: clamp(5rem, 11vw, 10rem);
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h) + 12px);
+  }
+  body {
+    @apply bg-ink-900 font-sans text-steel-100 antialiased;
+    font-size: 1rem;
+    line-height: 1.6;
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: rgb(130 178 255 / 0.3);
+    color: var(--color-steel-50);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-steel-50;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-datum-300);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+}
+
+/* ==========================================================================
+   COMPONENT PRIMITIVES
+   ========================================================================== */
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 92rem;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .section-y {
+    padding-block: var(--section-y);
+  }
+
+  /* Technical label — the mono "annotation" voice of the brand */
+  .tech-label {
+    @apply font-mono text-steel-400 uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .display-xl {
+    font-size: clamp(2.125rem, 5.1vw, 5.25rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 0.96;
+  }
+  .display-lg {
+    font-size: clamp(2rem, 4.4vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .display-md {
+    font-size: clamp(1.5rem, 2.4vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.08;
+  }
+  .lede {
+    @apply text-steel-300;
+    font-size: clamp(1.0625rem, 1.3vw, 1.25rem);
+    line-height: 1.55;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-3 font-sans font-medium whitespace-nowrap select-none;
+    min-height: 48px;
+    padding-inline: 1.375rem;
+    border-radius: var(--radius-hair);
+    font-size: 0.9375rem;
+    letter-spacing: 0.005em;
+    transition:
+      background-color var(--duration-snap) var(--ease-precise),
+      border-color var(--duration-snap) var(--ease-precise),
+      color var(--duration-snap) var(--ease-precise),
+      box-shadow var(--duration-move) var(--ease-precise),
+      transform var(--duration-snap) var(--ease-precise);
+  }
+  .btn-primary {
+    background-color: var(--color-brand-500);
+    color: var(--btn-primary-fg);
+  }
+  .btn-secondary {
+    @apply text-steel-50;
+    border: 1px solid var(--line-strong);
+    background: var(--btn-ghost-bg);
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-steel-300);
+  }
+
+  /* Hover: a fill sweeps in from the left, a light streak crosses, and the button lifts. */
+  .btn-primary,
+  .btn-secondary {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .btn-primary::before,
+  .btn-secondary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--duration-move) var(--ease-precise);
+  }
+  .btn-primary::before {
+    background: var(--color-brand-600);
+  }
+  .btn-secondary::before {
+    background: var(--btn-ghost-bg-hover);
+  }
+  .btn-primary:hover::before,
+  .btn-primary:focus-visible::before,
+  .btn-secondary:hover::before,
+  .btn-secondary:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: translateY(-1px);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 6px 16px -8px rgb(31 91 216 / 0.45);
+  }
+  .btn:active,
+  .btn-primary:active,
+  .btn-secondary:active {
+    transform: translateY(1px);
+  }
+  .btn-primary:active {
+    box-shadow: none;
+  }
+  .btn-quiet {
+    @apply text-steel-200;
+    min-height: 40px;
+    padding-inline: 0;
+  }
+  .btn-quiet:hover {
+    @apply text-steel-50;
+  }
+  .btn .btn-arrow {
+    transition: transform var(--duration-move) var(--ease-precise);
+  }
+  .btn:hover .btn-arrow {
+    transform: translateX(3px);
+  }
+
+  /* Panels — a surface with CAD selection brackets at the corners */
+  .panel {
+    position: relative;
+    background: var(--color-ink-850);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+  }
+  .brackets {
+    position: relative;
+  }
+  .brackets::before,
+  .brackets::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    border-color: var(--color-steel-400);
+    opacity: 0.55;
+    transition:
+      opacity var(--duration-move) var(--ease-precise),
+      border-color var(--duration-move) var(--ease-precise);
+  }
+  .brackets::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .brackets::after {
+    right: -1px;
+    bottom: -1px;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+  }
+
+  /* CAD grid backdrop */
+  .cad-grid {
+    background-image:
+      linear-gradient(var(--line-faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-faint) 1px, transparent 1px),
+      linear-gradient(var(--grid-minor) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+    background-size:
+      120px 120px,
+      120px 120px,
+      24px 24px,
+      24px 24px;
+    background-position: center center;
+  }
+
+  .rule {
+    height: 1px;
+    background: var(--line);
+    border: 0;
+  }
+
+  /* Form controls */
+  .field-label {
+    @apply mb-2 block text-sm font-medium text-steel-100;
+  }
+  .field-control {
+    @apply w-full text-steel-50;
+    min-height: 48px;
+    padding: 0.75rem 0.875rem;
+    background: var(--color-ink-800);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-part);
+    transition:
+      border-color var(--duration-snap) var(--ease-precise),
+      background-color var(--duration-snap) var(--ease-precise);
+  }
+  .field-control::placeholder {
+    color: var(--color-steel-500);
+  }
+  .field-control:hover {
+    border-color: var(--color-steel-500);
+  }
+  .field-control:focus-visible {
+    outline: none;
+    border-color: var(--color-datum-300);
+    box-shadow: 0 0 0 3px rgb(130 178 255 / 0.22);
+  }
+  .field-control[aria-invalid='true'] {
+    border-color: var(--color-signal-error);
+  }
+  select.field-control {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23a3acb8' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.95rem center;
+  }
+  .field-hint {
+    @apply mt-2 text-sm text-steel-400;
+  }
+  .field-error {
+    @apply mt-2 text-sm text-signal-error;
+  }
+}
+
+/* ==========================================================================
+   MOTION PRIMITIVES
+   ========================================================================== */
+@layer utilities {
+  /*
+   * House motion: text slides in horizontally and accent lines draw left → right.
+   * Every page and section gets it through <Reveal>, <RevealText>, <LineDraw> and <Eyebrow>,
+   * so new features should be built from those rather than bespoke animation.
+   */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(-28px, 0, 0);
+    transition:
+      opacity var(--duration-reveal) var(--ease-precise),
+      transform var(--duration-reveal) var(--ease-precise);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  /* Vertical variant, for the rare element that should rise instead. */
+  .reveal--below {
+    transform: translate3d(0, 18px, 0);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Accent line that draws from left to right once in view. */
+  .line-draw {
+    display: block;
+    height: 1px;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 1100ms var(--ease-precise);
+    transition-delay: var(--line-delay, 0ms);
+  }
+  .line-draw.is-in {
+    transform: scaleX(1);
+  }
+
+  /* Headings slide in word by word, left to right, as their section scrolls in. */
+  .reveal-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translate3d(-0.4em, 0, 0);
+    transition:
+      opacity var(--duration-reveal) var(--ease-precise),
+      transform var(--duration-reveal) var(--ease-precise);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal-text.is-in .reveal-word {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Technical line draw: set pathLength="1" on the SVG element */
+  .draw-line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 900ms var(--ease-mech);
+    transition-delay: var(--draw-delay, 0ms);
+  }
+  .is-drawn .draw-line,
+  .draw-line.is-drawn {
+    stroke-dashoffset: 0;
+  }
+
+  .fade-swap {
+    transition:
+      opacity var(--duration-move) var(--ease-precise),
+      transform var(--duration-move) var(--ease-precise);
+  }
+
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal,
+  .reveal--below,
+  .line-draw {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-word {
+    opacity: 1;
+    transform: none;
+  }
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn:active {
+    transform: none;
+  }
+  .draw-line {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ==========================================================================
+   SECTION SURFACES — the DIMENSHIFT palette in rotation
+   Each section chooses a surface. A surface re-maps the design tokens for
+   everything inside it (text, panels, lines, accents, buttons), so components
+   need no color variants and every combination keeps WCAG AA text contrast.
+   ========================================================================== */
+.surface-navy,
+.surface-deep,
+.surface-light,
+.surface-mist,
+.surface-brand {
+  background-color: var(--color-ink-900);
+  color: var(--color-steel-100);
+}
+
+/* Deep navy — a darker, cooler step from the page navy */
+.surface-deep {
+  --color-ink-950: #040917;
+  --color-ink-900: #0b1738;
+  --color-ink-850: #0f1d44;
+  --color-ink-800: #13234f;
+  --color-ink-700: #1a2c5c;
+  --color-ink-600: #22366a;
+  --color-ink-500: #2e4478;
+}
+
+/* White — navy text, logo-blue accents */
+.surface-light,
+.surface-mist {
+  --color-ink-950: #e8edf5;
+  --color-ink-900: #ffffff;
+  --color-ink-850: #f5f7fb;
+  --color-ink-800: #eef2f8;
+  --color-ink-700: #e2e8f2;
+  --color-ink-600: #d3dbe8;
+  --color-ink-500: #bfc9da;
+  --color-steel-50: #0b1b3f;
+  --color-steel-100: #17264b;
+  --color-steel-200: #2c3b60;
+  --color-steel-300: #44526f;
+  --color-steel-400: #56637f;
+  --color-steel-500: #6b7794;
+  --color-brand-300: #1848b0;
+  --color-brand-400: #1f5bd8;
+  --color-datum-200: #163f9a;
+  --color-datum-300: #1a4fc0;
+  --color-datum-400: #2f6bea;
+  --color-datum-500: #1f5bd8;
+  --color-signal-ok: #1d7f48;
+  --color-signal-error: #b42318;
+  --line-faint: rgb(11 27 63 / 0.06);
+  --line: rgb(11 27 63 / 0.12);
+  --line-strong: rgb(11 27 63 / 0.22);
+  --grid-minor: rgb(11 27 63 / 0.03);
+  --btn-ghost-bg: rgb(255 255 255 / 0.7);
+  --btn-ghost-bg-hover: #ffffff;
+  color-scheme: light;
+}
+
+/* Soft grey-blue — like the brand board's paper background */
+.surface-mist {
+  --color-ink-950: #e1e8f3;
+  --color-ink-900: #edf2fa;
+  --color-ink-850: #ffffff;
+  --color-ink-800: #f5f8fd;
+}
+
+/* Royal blue — the origin-dot blue; white text, inverted primary button */
+.surface-brand {
+  --color-ink-950: #1848b0;
+  --color-ink-900: #1f5bd8;
+  --color-ink-850: #1a51c7;
+  --color-ink-800: #174ab8;
+  --color-ink-700: #1443a8;
+  --color-ink-600: #123c98;
+  --color-ink-500: #3a72e6;
+  --color-steel-50: #ffffff;
+  --color-steel-100: #f5f8ff;
+  --color-steel-200: #eef3ff;
+  --color-steel-300: #e6edff;
+  --color-steel-400: #e1e9ff;
+  --color-steel-500: #c9d8fb;
+  --color-brand-300: #ffffff;
+  --color-brand-400: #ffffff;
+  --color-brand-500: #ffffff;
+  --color-brand-600: #e3ebfd;
+  --color-datum-200: #ffffff;
+  --color-datum-300: #ffffff;
+  --color-datum-400: #dbe6ff;
+  --color-datum-500: #b7ccfb;
+  --line-faint: rgb(255 255 255 / 0.1);
+  --line: rgb(255 255 255 / 0.2);
+  --line-strong: rgb(255 255 255 / 0.34);
+  --grid-minor: rgb(255 255 255 / 0.05);
+  --btn-primary-fg: #0b1b3f;
+  --btn-ghost-bg: rgb(11 27 63 / 0.18);
+  --btn-ghost-bg-hover: rgb(11 27 63 / 0.3);
+}
+
+/**
+ * Closing call to action. The flat royal-blue fill sat between the dark work section and the
+ * near-black footer, and the panel inside it was almost the same blue, so nothing separated.
+ * Here the navy above carries in at the top left and lifts into brand blue toward the lower
+ * right, lit from the top right — so the block reads as lit rather than painted, and the panel
+ * on top of it stays dark and calm for reading.
+ */
+.cta-surface {
+  background-image:
+    /* Sinks the lower edge back into navy, so the section meets the dark footer without a seam. */
+    linear-gradient(to bottom, transparent 58%, rgb(5 11 28 / 0.62) 100%),
+    radial-gradient(85% 115% at 86% 6%, rgb(107 152 255 / 0.5), transparent 62%),
+    radial-gradient(75% 95% at 4% 98%, rgb(4 9 23 / 0.6), transparent 62%),
+    linear-gradient(152deg, #0a1734 0%, #14357f 44%, #1f5bd8 100%);
+}
+
+/**
+ * Working principles strip, directly under the services on the home page. A flat royal-blue bar
+ * shouted louder than the content around it, so the band is lit from the top right and the cells
+ * sit on it as dark glass: the principles stay legible and the blue reads as depth, not paint.
+ */
+.trust-strip {
+  background-image:
+    radial-gradient(65% 200% at 90% 0%, rgb(107 152 255 / 0.45), transparent 62%),
+    linear-gradient(100deg, #0a1734 0%, #143a8c 52%, #1f5bd8 100%);
+  border-block: 1px solid rgb(255 255 255 / 0.14);
+}
+
+.trust-cell {
+  background-color: rgb(6 14 38 / 0.5);
+  transition: background-color 320ms var(--ease-precise);
+}
+
+.trust-cell:hover,
+.trust-cell:focus-within {
+  background-color: rgb(6 14 38 / 0.24);
+}
+

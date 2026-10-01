@@ -1,0 +1,200 @@
+/*
+ * DIMENSHIFT hero — cinematic treatment for the background film.
+ * Layers, bottom to top: film → tone-down → cool grade → brand glow → vignette
+ * → readability gradient → film grain. All motion is skipped for visitors who
+ * prefer reduced motion.
+ */
+
+.hero-cine__video {
+  filter: saturate(0.88) contrast(1.12) brightness(0.9);
+  transform-origin: 60% 50%;
+  will-change: transform;
+}
+
+/* Brings the bright studio backdrop down into a moody mid-tone. */
+.hero-cine__tone {
+  background: #a9b6d1;
+  mix-blend-mode: multiply;
+}
+
+/* Cool navy-to-blue grade; soft-light keeps metallic highlights intact. */
+.hero-cine__grade {
+  background: linear-gradient(115deg, #0b1b3f 0%, #1f5bd8 60%, #0b1b3f 100%);
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}
+
+.hero-cine__glow {
+  background: radial-gradient(ellipse 38% 42% at 64% 52%, rgb(47 107 234 / 0.22), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+.hero-cine__vignette {
+  background: radial-gradient(ellipse 90% 80% at 62% 50%, transparent 40%, rgb(5 11 28 / 0.5) 78%, rgb(5 11 28 / 0.85) 100%);
+}
+
+/* Phones: headline sits in the lower frame, product stays visible above it. */
+.hero-cine__read {
+  background:
+    linear-gradient(to bottom, rgb(5 11 28 / 0.65) 0%, transparent 20%),
+    linear-gradient(to top, var(--color-ink-950) 0%, rgb(5 11 28 / 0.86) 35%, rgb(5 11 28 / 0.72) 62%, rgb(5 11 28 / 0.2) 82%);
+}
+
+@media (min-width: 1024px) {
+  .hero-cine__read {
+    background:
+      linear-gradient(to bottom, rgb(5 11 28 / 0.6) 0%, transparent 18%),
+      linear-gradient(to top, var(--color-ink-950) 0%, transparent 24%),
+      linear-gradient(90deg, rgb(5 11 28 / 0.94) 0%, rgb(5 11 28 / 0.86) 34%, rgb(5 11 28 / 0.4) 58%, transparent 76%);
+  }
+}
+
+.hero-cine__grain {
+  inset: -60%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.hero-cine__cue {
+  background: linear-gradient(to bottom, var(--color-steel-200), transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Slow camera push-in */
+  .hero-cine__video {
+    animation: hero-cine-push 26s ease-in-out infinite alternate;
+  }
+  .hero-cine__grain {
+    animation: hero-cine-grain 1.2s steps(8) infinite;
+  }
+  /* Staggered title reveal: fade, rise and focus */
+  .hero-cine__reveal > * {
+    animation: hero-cine-rise 1.2s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  }
+  .hero-cine__reveal > :nth-child(2) {
+    animation-delay: 0.12s;
+  }
+  .hero-cine__reveal > :nth-child(3) {
+    animation-delay: 0.28s;
+  }
+  .hero-cine__reveal > :nth-child(4) {
+    animation-delay: 0.42s;
+  }
+  /* The headline rises word by word rather than as one block. */
+  .hero-cine__reveal > :nth-child(2) {
+    animation: none;
+  }
+  .hero-cine__word {
+    display: inline-block;
+    animation: hero-cine-rise 1.1s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+    animation-delay: calc(0.12s + var(--word-index, 0) * 0.06s);
+  }
+  .hero-cine__cue {
+    animation: hero-cine-cue 2.4s ease-in-out infinite;
+  }
+  /* Content drifts up and fades as the hero scrolls away (where supported). */
+  @supports (animation-timeline: view()) {
+    .hero-cine__content {
+      animation: hero-cine-exit linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 70%;
+    }
+  }
+}
+
+/*
+ * Phones and tablets: the same look, lighter to render. The animated grain layer (more than twice
+ * the hero's size, blended over the film) and the blur in the text entrance are the costliest
+ * effects on mobile GPUs, so they are left out there and the entrance is a plain fade and slide.
+ */
+@media (max-width: 1023px), (pointer: coarse) {
+  .hero-cine__grain {
+    display: none;
+  }
+  .hero-cine__reveal > *,
+  .hero-cine__word {
+    animation-name: hero-cine-rise-lite;
+  }
+}
+
+@keyframes hero-cine-rise-lite {
+  from {
+    opacity: 0;
+    transform: translate3d(-24px, 0, 0);
+  }
+}
+
+/* Looping effects stop while the hero is scrolled out of view. */
+.hero-cine[data-offscreen='true'] .hero-cine__video,
+.hero-cine[data-offscreen='true'] .hero-cine__grain,
+.hero-cine[data-offscreen='true'] .hero-cine__cue {
+  animation-play-state: paused;
+}
+
+@keyframes hero-cine-push {
+  from {
+    transform: scale(1.03);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, 0, 0);
+  }
+}
+
+@keyframes hero-cine-grain {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-5%, 4%, 0);
+  }
+  50% {
+    transform: translate3d(4%, -3%, 0);
+  }
+  75% {
+    transform: translate3d(-3%, -5%, 0);
+  }
+  100% {
+    transform: translate3d(5%, 3%, 0);
+  }
+}
+
+/* Slides in horizontally, matching the site-wide reveal. */
+@keyframes hero-cine-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(-32px, 0, 0);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes hero-cine-exit {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -48px, 0);
+  }
+}
+
+@keyframes hero-cine-cue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  50.1% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}

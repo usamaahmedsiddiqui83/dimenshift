@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Service scene renders (dev tool)</title>
+    <!-- Same typeface as the site, so labels baked into the renders match the page. -->
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
+    <style>
+      body { margin: 0; background: #050b1c; }
+      canvas { display: block; width: 100%; height: auto; }
+    </style>
+  </head>
+  <body>
+    <!--
+      Development-only tool (not part of the site build). Open via the Vite dev server at
+      /tools/service-renders/ and call `await renderService('<service-id>')` from the console;
+      each render is posted to a local receiver on 127.0.0.1:5199.
+    -->
+    <script type="module" src="./scenes.js"></script>
+  </body>
+</html>

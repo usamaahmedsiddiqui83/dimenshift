@@ -1,0 +1,7 @@
+[
+  { "path": "/", "changefreq": "monthly", "priority": 1.0 },
+  { "path": "/services", "changefreq": "monthly", "priority": 0.9 },
+  { "path": "/contact", "changefreq": "yearly", "priority": 0.8 },
+  { "path": "/privacy-policy", "changefreq": "yearly", "priority": 0.3 },
+  { "path": "/terms-and-conditions", "changefreq": "yearly", "priority": 0.3 }
+]

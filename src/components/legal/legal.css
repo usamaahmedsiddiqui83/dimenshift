@@ -1,0 +1,62 @@
+/* The "#" beside a clause heading: quiet until the heading is hovered or it takes focus. */
+.legal-anchor {
+  opacity: 0;
+  transition: opacity 200ms var(--ease-precise);
+}
+
+.legal-heading:hover .legal-anchor,
+.legal-anchor:focus-visible {
+  opacity: 1;
+}
+
+/* Nothing hovers on a touch screen, and narrow screens are touch screens in practice. */
+@media (hover: none), (max-width: 63.999rem) {
+  .legal-anchor {
+    opacity: 1;
+  }
+}
+
+/**
+ * Printing a policy is a normal thing to do with one, so the printed page drops the site
+ * furniture and the dark surface and leaves the document itself, black on white.
+ */
+@media print {
+  .legal-chrome,
+  header,
+  footer,
+  nav[aria-label='On this page'],
+  .legal-contents-mobile,
+  .legal-anchor,
+  .legal-back {
+    display: none !important;
+  }
+
+  .legal-doc,
+  .legal-doc * {
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .legal-doc {
+    max-width: none;
+  }
+
+  .legal-doc section {
+    border-color: #999 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .legal-doc h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Print the destination of links, so a paper copy stays useful. */
+  .legal-doc a[href^='http']::after,
+  .legal-doc a[href^='mailto']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+  }
+}
