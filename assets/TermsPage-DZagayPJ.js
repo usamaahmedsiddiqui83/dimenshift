@@ -1,0 +1,1 @@
+import{f as e,j as o,q as s}from"./index-BLrSVbgi.js";import{L as t,t as a}from"./LegalPage-DfA6oJnR.js";function m(){return e(s.terms),o.jsx(t,{document:a,related:{label:"Privacy Policy",to:"/privacy-policy"}})}export{m as default};
