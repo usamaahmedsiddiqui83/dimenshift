@@ -6,6 +6,7 @@ type NavigatorWithConnection = Navigator & { connection?: { saveData?: boolean; 
 
 /** Data saver or a slow connection: the poster alone is the better experience. */
 function prefersLightMedia() {
+  if (typeof navigator === 'undefined') return false; // pre-rendering at build time
   const connection = (navigator as NavigatorWithConnection).connection;
   return connection?.saveData === true || ['slow-2g', '2g', '3g'].includes(connection?.effectiveType ?? '');
 }

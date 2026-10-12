@@ -11,7 +11,8 @@ import { Reveal } from '../components/ui/Reveal';
 import { RevealText } from '../components/ui/RevealText';
 import { servicesMedia } from '../config/media';
 import { serviceImages, services } from '../config/services';
-import { brand, cta, seo, siteUrl } from '../config/site';
+import { cta, seo } from '../config/site';
+import { servicesJsonLd } from '../config/structuredData';
 import { useSeo } from '../hooks/useSeo';
 import { cn } from '../lib/cn';
 
@@ -33,24 +34,6 @@ const lightboxEntries = services.flatMap((service, serviceIndex) =>
   })),
 );
 const lightboxItems = lightboxEntries.map((entry) => entry.item);
-
-/** Each service listed as an offering of the business, in page order. */
-const servicesJsonLd: Record<string, unknown> = {
-  '@context': 'https://schema.org',
-  '@type': 'ItemList',
-  name: `${brand.name} engineering services`,
-  itemListElement: services.map((service, i) => ({
-    '@type': 'ListItem',
-    position: i + 1,
-    item: {
-      '@type': 'Service',
-      name: service.title,
-      description: service.description,
-      provider: { '@type': 'Organization', name: brand.name },
-      ...(siteUrl && { url: `${siteUrl}${seo.services.path}#${service.id}` }),
-    },
-  })),
-};
 
 export default function ServicesPage() {
   useSeo(seo.services, servicesJsonLd);

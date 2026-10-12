@@ -10,25 +10,12 @@ import { TrustStrip } from '../components/sections/TrustStrip';
 import { ServicesSection } from '../components/services/ServicesSection';
 import { InspectionViewer } from '../components/showcase/InspectionViewer';
 import { WorkShowcase } from '../components/showcase/WorkShowcase';
-import { services } from '../config/services';
-import { brand, contactDetails, seo, siteUrl } from '../config/site';
+import { seo } from '../config/site';
+import { homeJsonLd } from '../config/structuredData';
 import { useSeo } from '../hooks/useSeo';
 
-const organizationJsonLd: Record<string, unknown> = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: brand.name,
-  description: seo.home.description,
-  ...(siteUrl && { url: siteUrl }),
-  ...(contactDetails.email && { email: contactDetails.email }),
-  makesOffer: services.map((s) => ({
-    '@type': 'Offer',
-    itemOffered: { '@type': 'Service', name: s.title, description: s.summary },
-  })),
-};
-
 export default function HomePage() {
-  useSeo(seo.home, organizationJsonLd);
+  useSeo(seo.home, homeJsonLd);
   return (
     <>
       <Hero />

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { brand, siteUrl, type PageSeo } from '../config/site';
+import { brand, shareImage, siteUrl, type PageSeo } from '../config/site';
 
 function setMeta(attr: 'name' | 'property', key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
@@ -34,6 +34,12 @@ export function useSeo(page: PageSeo, jsonLd?: Record<string, unknown>, noindex 
     setMeta('property', 'og:title', page.title);
     setMeta('property', 'og:description', page.description);
     setMeta('property', 'og:site_name', brand.name);
+    setMeta('name', 'twitter:title', page.title);
+    setMeta('name', 'twitter:description', page.description);
+    if (siteUrl) {
+      setMeta('property', 'og:image', `${siteUrl}${shareImage.src}`);
+      setMeta('name', 'twitter:image', `${siteUrl}${shareImage.src}`);
+    }
     const url = siteUrl ? `${siteUrl}${page.path === '/' ? '/' : page.path}` : null;
     setCanonical(noindex ? null : url);
     if (url) setMeta('property', 'og:url', url);

@@ -37,19 +37,22 @@ export function Hero() {
 
       <div className="hero-cine__content container-x w-full pt-[calc(var(--header-h)+2rem)] pb-16 sm:pb-24 lg:pt-[calc(var(--header-h)+3rem)] lg:pb-28 short:pt-[calc(var(--header-h)+1.5rem)] short:pb-10">
         <div className="hero-cine__reveal max-w-[40rem] lg:max-w-[44rem] 2xl:max-w-[50rem]">
-          <p className="tech-label flex items-center gap-3 text-steel-200">
-            <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 bg-brand-500" />
-            Mechanical product design · 3D CAD engineering
-          </p>
-          <h1 id="hero-title" className="display-xl mt-5 sm:mt-6 short:mt-4">
-            {heroTitle.map((word, i) => (
-              <Fragment key={`${word}-${i}`}>
-                <span className="hero-cine__word" style={{ '--word-index': i } as CSSProperties}>
-                  {word}
-                </span>
-                {i < heroTitle.length - 1 ? ' ' : null}
-              </Fragment>
-            ))}
+          {/* The label is part of the heading: it names what the business does, which search engines weigh. */}
+          <h1 id="hero-title">
+            <span className="tech-label flex items-center gap-3 text-steel-200">
+              <span aria-hidden="true" className="inline-block h-1.5 w-1.5 shrink-0 bg-brand-500" />
+              Mechanical product design · 3D CAD engineering
+            </span>{' '}
+            <span className="display-xl mt-5 block sm:mt-6 short:mt-4">
+              {heroTitle.map((word, i) => (
+                <Fragment key={`${word}-${i}`}>
+                  <span className="hero-cine__word" style={{ '--word-index': i } as CSSProperties}>
+                    {word}
+                  </span>
+                  {i < heroTitle.length - 1 ? ' ' : null}
+                </Fragment>
+              ))}
+            </span>
           </h1>
           <p className="lede mt-5 max-w-[34rem] text-steel-100 sm:mt-6">
             Precision-driven mechanical product design and 3D CAD engineering that transforms ideas into accurate,

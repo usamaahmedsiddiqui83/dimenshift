@@ -6,6 +6,8 @@ import { Reveal } from '../components/ui/Reveal';
 import { RevealText } from '../components/ui/RevealText';
 import { services } from '../config/services';
 import { contactDetails, seo } from '../config/site';
+import { contactJsonLd } from '../config/structuredData';
+import { useHydrated } from '../hooks/useHydrated';
 import { useSeo } from '../hooks/useSeo';
 
 const headings = {
@@ -29,11 +31,13 @@ const nextSteps = [
 ];
 
 export default function ContactPage() {
-  useSeo(seo.contact);
+  useSeo(seo.contact, contactJsonLd);
   const [params] = useSearchParams();
-  const intent = params.get('intent');
+  // The pre-rendered page has no query string; read it only once the browser has taken over.
+  const hydrated = useHydrated();
+  const intent = hydrated ? params.get('intent') : null;
   const heading = intent === 'quote' || intent === 'discuss' ? headings[intent] : headings.default;
-  const serviceParam = params.get('service');
+  const serviceParam = hydrated ? params.get('service') : null;
   const initialService = services.some((s) => s.id === serviceParam) ? serviceParam! : undefined;
 
   const hasContact = contactDetails.email;

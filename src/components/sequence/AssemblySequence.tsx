@@ -60,7 +60,9 @@ function loadOrder(length: number, skip: number) {
 
 export function AssemblySequence() {
   const reducedMotion = useReducedMotion();
-  const [saveData] = useState(() => (navigator as NavigatorWithConnection).connection?.saveData === true);
+  const [saveData] = useState(
+    () => typeof navigator !== 'undefined' && (navigator as NavigatorWithConnection).connection?.saveData === true,
+  );
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
@@ -75,7 +77,9 @@ export function AssemblySequence() {
 
   // Source frames to use: all of them on larger screens, every 2nd on phones (the motion is just as
   // smooth at that size and it halves the download), every 4th with data saver on.
-  const [compact] = useState(() => window.matchMedia('(max-width: 767px)').matches);
+  const [compact] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
+  );
   const frames = useMemo(() => {
     const step = saveData ? 4 : compact ? 2 : 1;
     const list: number[] = [];

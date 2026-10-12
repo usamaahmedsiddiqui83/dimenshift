@@ -1,0 +1,65 @@
+# Apache / LiteSpeed config for Hostinger shared hosting.
+# (_redirects and _headers are the Netlify/Cloudflare equivalents.)
+
+Options -Indexes
+DirectoryIndex index.html
+AddType application/manifest+json .webmanifest
+
+# Server config files (e.g. api/.user.ini) are never served.
+<FilesMatch "^\.(user\.ini|htaccess)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Always serve over HTTPS on the bare domain: http:// and www. both redirect to https://dimenshift.com
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://dimenshift.com%{REQUEST_URI} [L,R=301]
+
+  # One URL per page: /index.html, /services.html and /services/ redirect to the clean address.
+  RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
+  RewriteRule ^ / [R=301,L]
+  RewriteCond %{THE_REQUEST} \s/+(services|contact|privacy-policy|terms-and-conditions)\.html[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+  RewriteRule ^(services|contact|privacy-policy|terms-and-conditions)/$ /$1 [R=301,L]
+
+  # Each route is a pre-rendered page (scripts/prerender.mjs; keep in sync with src/entry-server.tsx).
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(services|contact|privacy-policy|terms-and-conditions)$ $1.html [L]
+</IfModule>
+
+# Any other path is a real 404, rendered as the site's Not Found page.
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  # Browsers remember to use HTTPS for a year. (No includeSubDomains: mail autoconfig hosts may be HTTP-only.)
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # Only this site's own code may run. Fonts come from Fontshare; the hash allows index.html's font-loader onload.
+  # React and three.js set inline styles, hence style-src 'unsafe-inline'.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM='; style-src 'self' 'unsafe-inline' https://api.fontshare.com; font-src 'self' https://cdn.fontshare.com https://api.fontshare.com data:; img-src 'self' data: blob:; media-src 'self'; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+
+  # Built JS/CSS have content hashes in their names, so they can be cached for good.
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  # Images, frames and videos rarely change; cache for a week.
+  <ElseIf "%{REQUEST_URI} =~ m#^/(media|brand)/#">
+    Header set Cache-Control "public, max-age=604800"
+  </ElseIf>
+  # Pages must always be revalidated so new deploys show up immediately.
+  <ElseIf "%{REQUEST_URI} =~ m#^/((services|contact|privacy-policy|terms-and-conditions)/?)?$|\.html$#">
+    Header set Cache-Control "no-cache"
+  </ElseIf>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json application/xml image/svg+xml
+</IfModule>

@@ -6,8 +6,11 @@
  */
 
 export const brand = {
-  /** Business name as shown on the brand board. Used in titles, footer, structured data. */
-  name: 'DIMENSHIFT',
+  /**
+   * Business name in text: titles, og:site_name, footer and structured data. Google shows it as the
+   * site name in search results, so keep it identical everywhere (the logo artwork spells it in capitals).
+   */
+  name: 'Dimenshift',
   tagline: 'From Dimension to Reality.',
   /** Short descriptor used alongside the name in page titles. */
   descriptor: 'Mechanical Product Design & 3D CAD Engineering',
@@ -25,6 +28,14 @@ export const brand = {
 
 /** CLIENT: set VITE_SITE_URL at build time (e.g. https://www.example.com) for canonical/OG URLs and the sitemap. */
 export const siteUrl: string = (import.meta.env.VITE_SITE_URL ?? '').replace(/\/$/, '');
+
+/** Preview image for links shared on social networks and messengers (og:image). */
+export const shareImage = {
+  src: '/media/posters/hero-desktop-1280.jpg',
+  width: 1280,
+  height: 720,
+  alt: 'Engineers reviewing a mechanical drawing on a factory floor',
+} as const;
 
 /** CLIENT: real contact details. Null values are not rendered anywhere. */
 export const contactDetails = {
@@ -64,19 +75,20 @@ export interface PageSeo {
 
 export const seo = {
   home: {
-    title: `${brand.descriptor} | ${brand.name}`,
+    // The home page title leads with the site name: one of the signals Google uses to choose it.
+    title: `${brand.name} | ${brand.descriptor}`,
     description:
-      'Mechanical product design and 3D CAD engineering from concept to manufacturing-ready product: CAD modeling, engineering drawings, design for manufacturing and product development.',
+      'Mechanical product design and 3D CAD engineering: CAD models, engineering drawings, DFM and reverse engineering that take ideas to manufacturing-ready products.',
     path: '/',
   },
   services: {
-    title: `Engineering Services in Detail | ${brand.name}`,
+    title: `Mechanical Design, 3D CAD & DFM Services | ${brand.name}`,
     description:
-      'Mechanical product design, 3D CAD modeling, engineering drawings, design for manufacturing, product development, CAD conversion and reverse engineering, and design optimization — what each service involves and what you receive.',
+      'Mechanical product design, 3D CAD modeling, engineering drawings, DFM, CAD conversion and reverse engineering services: what each one includes and delivers.',
     path: '/services',
   },
   contact: {
-    title: `Start a Project — Request a Quote | ${brand.name}`,
+    title: `Request a Mechanical Design & CAD Quote | ${brand.name}`,
     description:
       'Send your product idea, sketches or CAD files for a mechanical design and 3D CAD engineering quote. Accepts STEP, IGES, DWG, DXF, STL, PDF and images.',
     path: '/contact',

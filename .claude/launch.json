@@ -26,6 +26,15 @@
         "--strictPort"
       ],
       "port": 4173
+    },
+    {
+      "name": "prod",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/serve-dist.mjs",
+        "4174"
+      ],
+      "port": 4174
     }
   ]
 }
