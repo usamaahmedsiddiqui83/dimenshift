@@ -10,7 +10,7 @@ export const brand = {
    * Business name in text: titles, og:site_name, footer and structured data. Google shows it as the
    * site name in search results, so keep it identical everywhere (the logo artwork spells it in capitals).
    */
-  name: 'Dimenshift',
+  name: 'DimenShift',
   tagline: 'From Dimension to Reality.',
   /** Short descriptor used alongside the name in page titles. */
   descriptor: 'Mechanical Product Design & 3D CAD Engineering',
