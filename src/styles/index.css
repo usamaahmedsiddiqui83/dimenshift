@@ -88,6 +88,10 @@
   --header-h: 64px;
   --gutter: clamp(1rem, 4vw, 3rem);
   --section-y: clamp(5rem, 11vw, 10rem);
+  /* Ceiling for anything sized to the screen height. Real screens stay well under it, but search
+     engines render pages in a window 9,000–12,000 px tall; uncapped, the hero alone filled it and
+     pushed the headline out of their view. */
+  --stage-max: 1600px;
   color-scheme: dark;
 }
 

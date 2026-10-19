@@ -194,7 +194,7 @@ export function ProcessSection() {
                 ref={(el) => {
                   stepRefs.current[i] = el;
                 }}
-                className="flex min-h-[62svh] flex-col justify-center py-10 split:min-h-[88svh]"
+                className="flex min-h-[min(62svh,calc(var(--stage-max)*0.62))] flex-col justify-center py-10 split:min-h-[min(88svh,calc(var(--stage-max)*0.88))]"
               >
                 <article
                   aria-labelledby={`stage-${s.id}`}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { assemblySequence as seq } from '../../config/media';
 import { useReducedMotion } from '../../hooks/useMediaQuery';
+import { useUserEngaged } from '../../hooks/useUserEngaged';
 import { useScrollFrame } from '../../hooks/useScrollProgress';
 import { cn } from '../../lib/cn';
 import { Eyebrow } from '../ui/Eyebrow';
@@ -168,7 +169,13 @@ export function AssemblySequence() {
     };
   }, [draw]);
 
-  // Load the starting frame at once; stream the rest as the section approaches.
+  // The starting frame loads as the section approaches. The rest stream in once the visitor has
+  // interacted with the page: anyone who reaches this section has scrolled by then, while crawlers,
+  // which never interact, skip the remaining frames.
+  const engaged = useUserEngaged();
+  const [streamReady, setStreamReady] = useState(false);
+  const stream = useRef<() => void>(() => {});
+
   useEffect(() => {
     let cancelled = false;
     images.current = new Array(frames.length).fill(null);
@@ -194,20 +201,26 @@ export function AssemblySequence() {
         img.src = frameUrl(frames[pos]);
       });
 
+    let started = false;
+    stream.current = () => {
+      if (started || cancelled) return;
+      started = true;
+      const queue = loadOrder(frames.length, first);
+      const worker = async () => {
+        while (!cancelled && queue.length) await loadOne(queue.shift()!);
+      };
+      for (let k = 0; k < 4; k++) void worker();
+    };
+
     const section = sectionRef.current;
     if (!section) return;
-    // Nothing loads with the page itself: the first frame, then the rest, start as the section nears.
+    // Nothing loads with the page itself: the first frame starts as the section nears.
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
         observer.disconnect();
         void loadOne(first).then(() => {
-          if (reducedMotion) return;
-          const queue = loadOrder(frames.length, first);
-          const worker = async () => {
-            while (!cancelled && queue.length) await loadOne(queue.shift()!);
-          };
-          for (let k = 0; k < 4; k++) void worker();
+          if (!cancelled && !reducedMotion) setStreamReady(true);
         });
       },
       { rootMargin: '150% 0px' },
@@ -216,8 +229,13 @@ export function AssemblySequence() {
     return () => {
       cancelled = true;
       observer.disconnect();
+      setStreamReady(false);
     };
   }, [frames, reducedMotion, scheduleDraw]);
+
+  useEffect(() => {
+    if (streamReady && engaged) stream.current();
+  }, [streamReady, engaged]);
 
   // Scroll position → frame, progress bar and caption.
   useScrollFrame(
@@ -240,9 +258,14 @@ export function AssemblySequence() {
     <section
       ref={sectionRef}
       aria-labelledby="sequence-title"
-      className={cn('relative', reducedMotion ? 'h-auto' : 'h-[280vh] lg:h-[400vh]')}
+      className={cn(
+        'relative',
+        reducedMotion
+          ? 'h-auto'
+          : 'h-[min(280vh,calc(var(--stage-max)*2.8))] lg:h-[min(400vh,calc(var(--stage-max)*4))]',
+      )}
     >
-      <div className="sticky top-0 h-[100svh] min-h-[320px] overflow-hidden">
+      <div className="sticky top-0 h-[min(100svh,var(--stage-max))] min-h-[320px] overflow-hidden">
         {/* The animation fills the whole stage. Frames keep the product between 20% and 75% of their
             height, so the heading and captions are kept compact enough to sit in the clear space above
             and below it. */}

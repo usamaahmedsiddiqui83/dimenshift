@@ -1,6 +1,7 @@
 import { lazy, Suspense, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { media, motion } from '../../config/motion';
 import { useInView } from '../../hooks/useInView';
+import { useUserEngaged } from '../../hooks/useUserEngaged';
 import { useIsMobile, useMediaQuery, useReducedMotion } from '../../hooks/useMediaQuery';
 import { cn } from '../../lib/cn';
 import type { DragState } from './Mechanism';
@@ -35,7 +36,11 @@ export function LazyMechanism({ getState, poster, label, className, drag, tone =
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const mount = webgl && !failed && near;
+  // three.js is the heaviest download on the site, so it also waits for the visitor's first scroll or
+  // tap, which always comes before this section is reached. Crawlers never interact, so they skip it.
+  const engaged = useUserEngaged();
+
+  const mount = webgl && !failed && near && engaged;
 
   return (
     // Callers own positioning; default to `relative` only when none is given.

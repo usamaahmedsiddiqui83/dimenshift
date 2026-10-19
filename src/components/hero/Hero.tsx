@@ -1,6 +1,6 @@
 import { Fragment, useRef, type CSSProperties } from 'react';
 import { heroMedia } from '../../config/media';
-import { cta } from '../../config/site';
+import { brand, cta } from '../../config/site';
 import { useOffscreenFlag } from '../../hooks/useOffscreenFlag';
 import { BackgroundVideo } from '../media/BackgroundVideo';
 import { ButtonLink } from '../ui/ButtonLink';
@@ -20,7 +20,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       aria-labelledby="hero-title"
-      className="hero-cine relative isolate flex min-h-[max(100svh,640px)] items-end short:min-h-[100svh] overflow-hidden bg-ink-950 lg:items-center"
+      className="hero-cine relative isolate flex min-h-[clamp(640px,100svh,var(--stage-max))] items-end short:min-h-[100svh] overflow-hidden bg-ink-950 lg:items-center"
     >
       <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
         {/* Poster and film share one frame, so the slow push-in stays continuous when the film fades in. */}
@@ -55,8 +55,8 @@ export function Hero() {
             </span>
           </h1>
           <p className="lede mt-5 max-w-[34rem] text-steel-100 sm:mt-6">
-            Precision-driven mechanical product design and 3D CAD engineering that transforms ideas into accurate,
-            functional, production-ready solutions.
+            {brand.name} delivers precision-driven mechanical product design and 3D CAD engineering that transforms
+            ideas into accurate, functional, production-ready solutions.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap short:mt-6">
             <ButtonLink to={cta.primary.to}>{cta.primary.label}</ButtonLink>
